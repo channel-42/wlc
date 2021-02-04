@@ -2,6 +2,8 @@ SRC_DIR := src
 OBJ_DIR := obj
 BIN_DIR := bin
 
+INSTALL_PATH := ~/.local/bin/
+
 OUT := $(BIN_DIR)/wlc
 SRC := $(wildcard $(SRC_DIR)/*.c)
 OBJ := $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
@@ -24,6 +26,8 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 $(BIN_DIR) $(OBJ_DIR):
 	mkdir -p $@
 
+install:
+	cp $(OUT) $(INSTALL_PATH)
 clean:
 	@$(RM) -rv $(BIN_DIR) $(OBJ_DIR)
 
