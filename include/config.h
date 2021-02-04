@@ -6,12 +6,19 @@
 
 // WLED HOST IP, SUFFIX HAS TO BE "/win&"
 const static char *IP = "192.168.178.195/win&";
-
+/* WLED COLORD
+ * FORMATS:
+ * HEX: "HRRGGBB"
+ * HEX FOR RGBW: "HWWRRGGBB"
+ */
+const static char *COLOR1 = "H7957B9";
+const static char *COLOR2 = "H9AEDFE";
+const static char *COLOR3 = "HFF5555";
 /* END OF USER SETTINGS */
 
-/* single effect: consists of id and name
+/* single effect: consists of ID and name
  * see https://github.com/Aircoookie/WLED/wiki/List-of-effects-and-palettes
- * for the definition of the effects and ids
+ * for the definition of the effects and IDs
  */
 typedef struct {
   uint8_t id;
@@ -139,7 +146,6 @@ const static effect_list_t effect_arr = {{0, "Solid"},
                                          {115, "Blends"},
                                          {116, "TV Simulator"},
                                          {117, "Dynamic Smooth"}};
-
 // list of palettes: there are 56 defined wled color palettes
 typedef effect_t palette_list_t[56];
 // all defined palettes with id and corresponding name

@@ -30,17 +30,15 @@ size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp) {
 
 // change brightness to specified value
 int chngBri(CURL *curl, uint8_t val) {
-  CURLcode resp;
   // request http url
   char request[255];
   sprintf(request, "%sA=%d", IP, val);
-
   // make request
   return req(curl, request);
 }
 
+// change effect preset
 int chngEff(CURL *curl, char *eff_name) {
-  CURLcode resp;
   // request http url
   char request[255];
 
@@ -58,8 +56,8 @@ int chngEff(CURL *curl, char *eff_name) {
   return req(curl, request);
 }
 
+// change palette
 int chngPal(CURL *curl, char *pal_name) {
-  CURLcode resp;
   // request http url
   char request[255];
 
@@ -76,17 +74,72 @@ int chngPal(CURL *curl, char *pal_name) {
   // make request
   return req(curl, request);
 }
-int main(int argc, char *argv[]) {
 
+// change effect speed
+int chngSpeed(CURL *curl, uint8_t val) {
+  // request http url
+  char request[255];
+  sprintf(request, "%sSX=%d", IP, val);
+  // make request
+  return req(curl, request);
+}
+
+// change effect intensity
+int chngStrg(CURL *curl, uint8_t val) {
+  // request http url
+  char request[255];
+  sprintf(request, "%sIX=%d", IP, val);
+  // make request
+  return req(curl, request);
+}
+
+// set default color palette to user defined colors
+// used on startup
+int setUserColors(CURL *curl) {
+  // request http url
+  char request[255];
+  sprintf(request, "%sCL=%s&C2=%s&C3=%s", IP, COLOR1, COLOR2, COLOR3);
+  // make request
+  return req(curl, request);
+}
+
+int chngHueSat(CURL *curl, char *hue_sat) {
+  // request http url
+  char request[255];
+  // tokenize input string
+  const char *tok = ":";
+  char *input = hue_sat;
+  uint hs[2];
+  char *seg = strtok(hue_sat, tok);
+  // get segments from string
+  for (uint8_t i = 0; i < 2; i++) {
+    // check if input is correct
+    if (seg == NULL) {
+      fprintf(stderr, "Invalid input: %s\nFormat is: 'HUE:SAT'\n", input);
+      return 2;
+    }
+    hs[i] = atoi(seg);
+    seg = strtok(NULL, tok);
+  }
+  sprintf(request, "%sHU=%d&SA=%d", IP, hs[0], hs[1]);
+  // make request
+  return req(curl, request);
+}
+
+int main(int argc, char *argv[]) {
+  // setup curl
   CURL *curl = curl_easy_init();
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
-
-  // check for if curl is OK
+  // set user colors
+  if (setUserColors(curl)) {
+    fprintf(stderr, "Couldn't set user colors\n");
+  }
+  // check if curl is OK
   if (curl) {
     extern char *optarg;
     int opt;
     // parse through options
-    while ((opt = getopt(argc, argv, "b:e:p:")) != -1) {
+    while ((opt = getopt(argc, argv, "b:e:p:f:i:h:")) != -1) {
       switch (opt) {
       case 'b':
         // change master brightness
@@ -103,6 +156,27 @@ int main(int argc, char *argv[]) {
         // change master color palette
         if (chngPal(curl, optarg)) {
           fprintf(stderr, "Unknown color palette: %s\n", optarg);
+          break;
+        }
+        break;
+      case 'f':
+        // change master effect speed
+        if (chngSpeed(curl, atoi(optarg))) {
+          fprintf(stderr, "An error occoured while making the http request\n");
+          break;
+        }
+        break;
+      case 'i':
+        // change master effect intensity
+        if (chngStrg(curl, atoi(optarg))) {
+          fprintf(stderr, "An error occoured while making the http request\n");
+          break;
+        }
+        break;
+      case 'h':
+        // change master color hue and saturation
+        if (chngHueSat(curl, optarg) == 1) {
+          fprintf(stderr, "An error occoured while making the http request\n");
           break;
         }
         break;
