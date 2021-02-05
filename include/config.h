@@ -6,7 +6,7 @@
 
 // WLED HOST IP, SUFFIX HAS TO BE "/win&"
 const static char *IP = "192.168.178.195/win&";
-/* WLED COLORD
+/* WLED COLOR
  * FORMATS:
  * HEX: "HRRGGBB"
  * HEX FOR RGBW: "HWWRRGGBB"
@@ -205,4 +205,25 @@ const static palette_list_t palette_arr = {{0, "Default"},
                                            {53, "C9 New"},
                                            {54, "Temperature"},
                                            {55, "Aurora 2"}};
+// rgb object
+typedef struct {
+  uint8_t r;
+  uint8_t g;
+  uint8_t b;
+} rgb_t;
+// daylight object: rgb color and matching hour
+typedef struct {
+  rgb_t rgb;
+  uint8_t hour;
+} daylight_t;
+// color gradient over time
+const static daylight_t daylight_gradient[24] = {
+    {{255, 70, 0}, 0},     {{255, 70, 0}, 1},     {{255, 70, 0}, 2},
+    {{255, 70, 0}, 3},     {{255, 80, 0}, 4},     {{255, 90, 0}, 5},
+    {{255, 108, 0}, 6},    {{255, 142, 27}, 7},   {{255, 177, 95}, 8},
+    {{255, 200, 150}, 9},  {{255, 233, 215}, 10}, {{215, 225, 255}, 11},
+    {{190, 215, 255}, 12}, {{190, 200, 255}, 13}, {{230, 245, 255}, 14},
+    {{255, 240, 225}, 15}, {{255, 221, 195}, 16}, {{255, 185, 130}, 17},
+    {{255, 150, 55}, 18},  {{255, 120, 0}, 19},   {{255, 86, 0}, 20},
+    {{255, 70, 0}, 21},    {{255, 70, 0}, 22},    {{255, 70, 0}, 23}};
 #endif

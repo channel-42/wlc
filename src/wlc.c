@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "../include/config.h"
@@ -185,6 +186,22 @@ int chngHueSat(CURL *curl, char *hue_sat) {
   return req(curl, request);
 }
 
+int followDaylight(CURL *curl) {
+  // get current hour
+  time_t rawtime;
+  struct tm *tm_struct;
+  rawtime = time(NULL);
+  tm_struct = localtime(&rawtime);
+  uint8_t hour = tm_struct->tm_hour;
+  // request string
+  char request[255];
+  // mode has to be 0/Solid!
+  sprintf(request, "%sFX=%d&R=%d&G=%d&B=%d", IP, 0,
+          daylight_gradient[hour].rgb.r, daylight_gradient[hour].rgb.g,
+          daylight_gradient[hour].rgb.b);
+  return req(curl, request);
+}
+
 // main programme
 int main(int argc, char *argv[]) {
   // setup curl
@@ -199,7 +216,7 @@ int main(int argc, char *argv[]) {
     extern char *optarg;
     int opt;
     // parse through options
-    while ((opt = getopt(argc, argv, "b:e:p:f:i:m:s:l:h")) != -1) {
+    while ((opt = getopt(argc, argv, "b:e:p:f:i:m:s:l:th")) != -1) {
       switch (opt) {
       case 'b':
         // change master brightness
@@ -255,6 +272,12 @@ int main(int argc, char *argv[]) {
           break;
         }
         break;
+      case 't':
+        if (followDaylight(curl)) {
+          fprintf(stderr, "An error occoured while making the http request\n");
+          break;
+        }
+        break;
       case 'h':
         printHelp();
         break;
@@ -266,7 +289,7 @@ int main(int argc, char *argv[]) {
         break;
       }
     }
-    //cleanup curl
+    // cleanup curl
     curl_global_cleanup();
     curl_easy_cleanup(curl);
   }
