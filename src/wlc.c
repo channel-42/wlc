@@ -28,7 +28,8 @@ Control WLED devices through the HTTP API.\n\n\
   -i NUM      set effect intensity.\n\
   -m HUE:SAT  set master hue and saturation.\n\
   -s SEG      choose segment to aplly the changes.\n\
-  -l OPTION   list all 'effects' or 'palettes'.\n\n\
+  -l OPTION   list all 'effects' or 'palettes'.\n\
+  -t          set master color by current time.\n\n\
 NUM, SAT: integer value between 0 and 255.\n\
 SEG:      integer value between 0 and 9.\n\
 HUE:      integer value between 0 and 65535.\n\
