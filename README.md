@@ -24,3 +24,19 @@ make && make install
 This will install wlc into `~/.local/bin/`. Thus, make sure the directory is in your `$PATH` to be able to execute the programme in your shell. 
 
 To install it globally, move or copy the binary to `/usr/bin/`. 
+
+## Use case examples
+
+### setting a profile at system startup
+This can be done by calling wlc from `.xinitrc`
+```
+# ...
+wlc <flags and values> &
+# ...
+```
+
+### synchronize LEDs with daylight
+This can be done by running a hourly cronjob from wlc with the `-t` flag. wlc will match the light temperature to the system's time.
+
+## How it works
+wlc controls the wled host through the wled http api by making GET requests. The official wled wiki page on this [topic](https://github.com/Aircoookie/WLED/wiki/HTTP-request-API) explains the inner-workings in greater detail.
