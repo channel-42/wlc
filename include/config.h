@@ -1,6 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 #include <stdint.h>
+#include <stdlib.h>
 
 /* USER SETTINGS */
 
@@ -14,8 +15,27 @@ const static char *IP = "192.168.178.195/win&";
 const static char *COLOR1 = "H7957B9";
 const static char *COLOR2 = "H9AEDFE";
 const static char *COLOR3 = "HFF5555";
+
 /* END OF USER SETTINGS */
 
+// string type used to store xlm response
+typedef struct {
+  char *ptr;
+  size_t len;
+} string_t;
+
+// xml option: has name and corresponding tag
+typedef struct {
+  char name[255];
+  char tag[255];
+} xml_element_t;
+
+// list of all queriable tags
+const static xml_element_t xml_arr[5] = {{"brightness", "<ac>"},
+                                         {"speed", "<sx>"},
+                                         {"intensity", "<ix>"},
+                                         {"palette", "<fp>"},
+                                         {"effect", "<fx>"}};
 /* single effect: consists of ID and name
  * see https://github.com/Aircoookie/WLED/wiki/List-of-effects-and-palettes
  * for the definition of the effects and IDs
@@ -26,9 +46,8 @@ typedef struct {
 } effect_t;
 
 // list of effects: there are 118 defined wled effects
-typedef effect_t effect_list_t[118];
 // all defined effects with id and corresponding name
-const static effect_list_t effect_arr = {{0, "Solid"},
+const static effect_t effect_arr[118] = {{0, "Solid"},
                                          {1, "Blink"},
                                          {2, "Breathe"},
                                          {3, "Wipe"},
@@ -205,18 +224,18 @@ const static palette_list_t palette_arr = {{0, "Default"},
                                            {53, "C9 New"},
                                            {54, "Temperature"},
                                            {55, "Aurora 2"}};
-// rgb object
+// rgb type 
 typedef struct {
   uint8_t r;
   uint8_t g;
   uint8_t b;
 } rgb_t;
-// daylight object: rgb color and matching hour
+// daylight type: rgb color and matching hour
 typedef struct {
   rgb_t rgb;
   uint8_t hour;
 } daylight_t;
-// color gradient over time
+// color gradient over time: list of rgb colors + time in h
 const static daylight_t daylight_gradient[24] = {
     {{255, 70, 0}, 0},     {{255, 70, 0}, 1},     {{255, 70, 0}, 2},
     {{255, 70, 0}, 3},     {{255, 80, 0}, 4},     {{255, 90, 0}, 5},
