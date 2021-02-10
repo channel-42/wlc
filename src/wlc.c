@@ -84,6 +84,7 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, string_t *s) {
   return size * nmemb;
 }
 
+// find and return array id by passed name
 int findFromName(const effect_t array[], char *query, int limit) {
   uint8_t i = 0;
   while (strcmp(array[i].name, query)) {
