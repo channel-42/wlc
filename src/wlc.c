@@ -22,23 +22,23 @@ try 'wlc -h' for more information.\n\
 const char *HELP = "\
 usage: wlc [OPTION] [VALUE] ...\n\
 Control a WLED host through the HTTP API.\n\n\
-  -h          display this help\n\
-  -b NUM      set master brightness.\n\
-  -e NAME     set master effect. Use '-l' to see all available effects.\n\
-  -p NAME     set color palette. Use '-l' to see all available palettes.\n\
-  -f NUM      set effect speed.\n\
-  -i NUM      set effect intensity.\n\
-  -m HUE:SAT  set master hue and saturation.\n\
-  -s SEG      choose segment to aplly the changes.\n\
-  -l OPTION   list all 'effects' or 'palettes'.\n\
-  -t          set master color by current time.\n\
-  -q QUERY    query the WLED host\n\n\
-NUM, SAT: integer value between 0 and 255.\n\
-SEG:      integer value between 0 and 9.\n\
-HUE:      integer value between 0 and 65535.\n\
-NAME:     string. Space-delimited strings need to enclosed in 'quotes'.\n\n\
-QUERY:    string. One of these available options:\n\
-'brightness', 'speed', 'intensity', palette', 'effect'\n\n\
+  -h            display this help\n\
+  -b NUM        set master brightness.\n\
+  -e NAME       set master effect.\n\
+  -p NAME       set color palette.\n\
+  -f NUM        set effect speed.\n\
+  -i NUM        set effect intensity.\n\
+  -m HUE:SAT    set master hue and saturation.\n\
+  -s SEG        choose segment to aplly the changes.\n\
+  -l OPTION     list all 'effects' or 'palettes'.\n\
+  -t            set master color by current time.\n\
+  -q QUERY      query the WLED host\n\n\
+  NUM, SAT:   integer value between 0 and 255.\n\
+  SEG:        integer value between 0 and 9.\n\
+  HUE:        integer value between 0 and 65535.\n\
+  NAME:       string. Space-delimited strings need to enclosed in 'quotes'.\n\n\
+  QUERY:      string. One of these available options:\n\
+              'brightness', 'speed', 'intensity', palette', 'effect'\n\n\
 For more information on how to configure the cli,\n\
 at <https://github.com/channel-42/wlc/blob/master/README.md>\n\
 ";
@@ -250,107 +250,120 @@ int queryHost(CURL *curl, char *opt, string_t str) {
   return 0;
 }
 
-// main programme
+// main program
 int main(int argc, char *argv[]) {
-  // setup curl
-  CURL *curl = curl_easy_init();
-  string_t str;
-  init_string(&str);
-  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
-  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &str);
-  // set user colors
-  if (setUserColors(curl)) {
-    fprintf(stderr, "Couldn't set user colors\n");
-  }
-  // check if curl is OK
-  if (curl) {
-    extern char *optarg;
-    int opt;
-    // parse through options
-    while ((opt = getopt(argc, argv, "b:e:p:f:i:m:s:l:q:th")) != -1) {
-      switch (opt) {
-      case 'b':
-        // change master brightness
-        chngBri(curl, atoi(optarg));
-        break;
-      case 'e':
-        // change master effect
-        if (chngEff(curl, optarg)) {
-          fprintf(stderr, "Unknown effect: %s\n", optarg);
-          break;
-        }
-        break;
-      case 'p':
-        // change master color palette
-        if (chngPal(curl, optarg)) {
-          fprintf(stderr, "Unknown color palette: %s\n", optarg);
-          break;
-        }
-        break;
-      case 'f':
-        // change master effect speed
-        if (chngSpeed(curl, atoi(optarg))) {
-          fprintf(stderr, "An error occoured while making the http request\n");
-          break;
-        }
-        break;
-      case 'i':
-        // change master effect intensity
-        if (chngStrg(curl, atoi(optarg))) {
-          fprintf(stderr, "An error occoured while making the http request\n");
-          break;
-        }
-        break;
-      case 'm':
-        // change master color hue and saturation
-        if (chngHueSat(curl, optarg) == 1) {
-          fprintf(stderr, "An error occoured while making the http request\n");
-          break;
-        }
-        break;
-      case 's':
-        // set segment to apply api call
-        if (setSegm(curl, atoi(optarg))) {
-          fprintf(stderr, "An error occoured while making the http request\n");
-          break;
-        }
-        break;
-      case 'l':
-        // list available palettes and effects
-        if (listOptions(optarg)) {
-          fprintf(stderr,
-                  "Unknown option. Choose either 'effects' or 'palettes'\n");
-          break;
-        }
-        break;
-      case 'q':
-        // query the wled host
-        if (queryHost(curl, optarg, str)) {
-          fprintf(stderr, "Unknown query term: %s\n", optarg);
-          break;
-        }
-        break;
-      case 't':
-        if (followDaylight(curl)) {
-          fprintf(stderr, "An error occoured while making the http request\n");
-          break;
-        }
-        break;
-      case 'h':
-        printHelp();
-        break;
-      default:
-        // default, when an option is unknown
-        // print usage and exit
-        fprintf(stderr, "%s", USAGE);
-        exit(EXIT_FAILURE);
-        break;
-      }
+  // speed up help print in case the host doesn't respond
+  if (argc == 2 && !strcmp("-h", argv[1])) {
+    // only if only "-h" is provided!
+    printHelp();
+    exit(EXIT_SUCCESS);
+  } else {
+    // setup curl
+    CURL *curl = curl_easy_init();
+    string_t str;
+    init_string(&str);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &str);
+    // set user colors
+    if (setUserColors(curl)) {
+      fprintf(stderr, "Couldn't set user colors\n");
     }
-    // cleanup curl
-    free(str.ptr);
-    curl_global_cleanup();
-    curl_easy_cleanup(curl);
+    // check if curl is OK
+    if (curl) {
+      extern char *optarg;
+      int opt;
+      // parse through options
+      while ((opt = getopt(argc, argv, "b:e:p:f:i:m:s:l:q:th")) != -1) {
+        switch (opt) {
+        case 'b':
+          // change master brightness
+          chngBri(curl, atoi(optarg));
+          break;
+        case 'e':
+          // change master effect
+          if (chngEff(curl, optarg)) {
+            fprintf(stderr, "Unknown effect: %s\n", optarg);
+            break;
+          }
+          break;
+        case 'p':
+          // change master color palette
+          if (chngPal(curl, optarg)) {
+            fprintf(stderr, "Unknown color palette: %s\n", optarg);
+            break;
+          }
+          break;
+        case 'f':
+          // change master effect speed
+          if (chngSpeed(curl, atoi(optarg))) {
+            fprintf(stderr,
+                    "An error occurred while making the http request\n");
+            break;
+          }
+          break;
+        case 'i':
+          // change master effect intensity
+          if (chngStrg(curl, atoi(optarg))) {
+            fprintf(stderr,
+                    "An error occurred while making the http request\n");
+            break;
+          }
+          break;
+        case 'm':
+          // change master color hue and saturation
+          if (chngHueSat(curl, optarg) == 1) {
+            fprintf(stderr,
+                    "An error occurred while making the http request\n");
+            break;
+          }
+          break;
+        case 's':
+          // set segment to apply api call
+          if (setSegm(curl, atoi(optarg))) {
+            fprintf(stderr,
+                    "An error occurred while making the http request\n");
+            break;
+          }
+          break;
+        case 'l':
+          // list available palettes and effects
+          if (listOptions(optarg)) {
+            fprintf(stderr,
+                    "Unknown option. Choose either 'effects' or 'palettes'\n");
+            break;
+          }
+          break;
+        case 'q':
+          // query the wled host
+          if (queryHost(curl, optarg, str)) {
+            fprintf(stderr, "Unknown query term: %s\n", optarg);
+            break;
+          }
+          break;
+        case 't':
+          if (followDaylight(curl)) {
+            fprintf(stderr,
+                    "An error occurred while making the http request\n");
+            break;
+          }
+          break;
+        case 'h':
+          printHelp();
+          break;
+        default:
+          // default, when an option is unknown
+          // print usage and exit
+          fprintf(stderr, "%s", USAGE);
+          exit(EXIT_FAILURE);
+          break;
+        }
+      }
+      // cleanup curl
+      free(str.ptr);
+      curl_global_cleanup();
+      curl_easy_cleanup(curl);
+    }
   }
   return 0;
+  exit(EXIT_SUCCESS);
 }
